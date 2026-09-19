@@ -1,0 +1,21 @@
+{
+  "name": "Nox Analytics",
+  "short_name": "Nox",
+  "description": "Advanced analytics platform for smarter business decisions..",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1a73e8",
+  "icons": [
+    {
+      "src": "/public/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/public/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

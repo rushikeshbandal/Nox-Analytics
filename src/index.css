@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: Aldrich;
+  src: url('../../vite-project/src/assets/fonts/Aldrich-Regular.ttf');
+}
+
+@font-face {
+ font-family: Orbitron;
+  src: url('../../vite-project/src/assets/fonts/Orbitron-SemiBold.ttf');
+}
+
+@font-face {
+ font-family: Inter;
+  src: url('../../vite-project/src/assets/fonts/Inter-Regular.ttf');
+}
+
+@theme {
+  --color-dark-mode: black;
+  --color-custom-bg: #1A1A1A;
+  --font-Aldrich: Aldrich, "sans-serif";
+  --font-Orbitron: Orbitron, "sans-serif";
+  --font-Inter: Inter, "sans-serif";
+}
+
+
+
+.numbers{
+background: #1A1A1A;
+}
+
+/* --- Chart Card Harmonization Styles --- */
+.chart-card {
+  color: var(--card-text-color) !important;
+}
+
+/* Make inner divs, articles, section containers transparent so they show the card's accentColor background */
+.chart-card div,
+.chart-card section,
+.chart-card article {
+  background-color: transparent !important;
+  background: transparent !important;
+  border-color: var(--card-border-color) !important;
+  color: var(--card-text-color) !important;
+}
+
+/* Make common background rects transparent so the SVG doesn't block the card background */
+.chart-card svg rect[fill^="#f"],
+.chart-card svg rect[fill^="#w"],
+.chart-card svg rect[fill="#fff"],
+.chart-card svg rect[fill="#ffffff"] {
+  fill: transparent !important;
+}
+
+/* SVGs should have transparent backgrounds */
+.chart-card svg {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Ensure SVG text elements automatically match the card's text color */
+.chart-card svg text,
+.chart-card svg tspan {
+  fill: var(--card-text-color) !important;
+  color: var(--card-text-color) !important;
+}
+
+/* Subtle styling for gridlines and axes */
+.chart-card svg line,
+.chart-card svg path.domain,
+.chart-card svg .grid-line,
+.chart-card svg .grid line {
+  stroke: var(--card-border-color) !important;
+  opacity: 0.65;
+}
+
+/* Buttons, selects, and inputs styling */
+.chart-card select,
+.chart-card option,
+.chart-card button,
+.chart-card input {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid var(--card-border-color) !important;
+  color: var(--card-text-color) !important;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+/* Ensure dropdown options are readable on hover/focus */
+.chart-card option {
+  background-color: var(--card-accent-color) !important;
+  color: var(--card-text-color) !important;
+}
+
+/* Legends and tooltips alignment */
+.chart-card .legend,
+.chart-card [style*="boxShadow"],
+.chart-card [style*="box-shadow"] {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid var(--card-border-color) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Fluid responsive mapping for D3 SVGs to fit inside chart cards on all screens */
+.chart-card svg {
+  max-width: 100% !important;
+  overflow: visible !important;
+}

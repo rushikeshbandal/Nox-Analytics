@@ -571,20 +571,146 @@ function Chart2D({ theme, palette, year, selectedNation, setSelectedNation, regi
       .attr("stroke-width", (d) => (selectedNation === d.name ? 2.5 : 1.2))
       .style("cursor", "pointer");
 
-    // Country text labels on notable bubbles
-    bubbleG
-      .selectAll("text.c-label")
-      .data(sortedData.filter((d) => d.pop > 100 || selectedNation === d.name))
-      .join("text")
-      .attr("class", "c-label")
-      .attr("x", (d) => xScale(d.income))
-      .attr("y", (d) => yScale(d.lifeExp) - rScale(d.pop) - 4)
+    // ─── Country text labels with values & collision deconfliction ───
+    const labeledNations = sortedData.filter((d) => d.pop > 100 || selectedNation === d.name);
+
+    // Compute collision-free placements for each badge
+    const placedBoxes = [];
+    const labelItems = labeledNations.map((d) => {
+      const cx = xScale(d.income);
+      const cy = yScale(d.lifeExp);
+      const r = rScale(d.pop);
+      const valStr = `$${d.income >= 1000 ? (d.income / 1000).toFixed(1) + "k" : d.income} · ${d.lifeExp}y`;
+      const badgeW = Math.max(88, d.name.length * 6.5 + valStr.length * 5.8 + 18);
+      const badgeH = 21;
+
+      // Candidate anchor positions relative to bubble
+      const candidates = [
+        { lx: cx, ly: cy - r - 13, leader: false }, // top
+        { lx: cx, ly: cy + r + 13, leader: true },  // bottom
+        { lx: cx + r + badgeW / 2 + 5, ly: cy, leader: true }, // right
+        { lx: cx - r - badgeW / 2 - 5, ly: cy, leader: true }, // left
+        { lx: cx + r * 0.7 + badgeW / 2 + 3, ly: cy - r * 0.7 - 9, leader: true }, // top-right
+        { lx: cx - r * 0.7 - badgeW / 2 - 3, ly: cy - r * 0.7 - 9, leader: true }, // top-left
+      ];
+
+      // Pick candidate with minimum overlap against already placed boxes
+      let bestPos = candidates[0];
+      let minOverlap = Infinity;
+
+      for (const cand of candidates) {
+        // Clamp to chart boundaries
+        const clampedX = Math.max(margin.left + badgeW / 2 + 4, Math.min(width - margin.right - badgeW / 2 - 4, cand.lx));
+        const clampedY = Math.max(margin.top + badgeH / 2 + 4, Math.min(height - margin.bottom - badgeH / 2 - 4, cand.ly));
+
+        let overlapCount = 0;
+        const halfW = badgeW / 2 + 5;
+        const halfH = badgeH / 2 + 3;
+
+        for (const pb of placedBoxes) {
+          if (
+            Math.abs(clampedX - pb.x) < halfW + pb.w / 2 &&
+            Math.abs(clampedY - pb.y) < halfH + pb.h / 2
+          ) {
+            overlapCount += 1;
+          }
+        }
+
+        if (overlapCount < minOverlap) {
+          minOverlap = overlapCount;
+          bestPos = { lx: clampedX, ly: clampedY, leader: cand.leader };
+          if (overlapCount === 0) break;
+        }
+      }
+
+      // If still overlapping with existing placed boxes, shift vertically
+      for (const pb of placedBoxes) {
+        if (
+          Math.abs(bestPos.lx - pb.x) < (badgeW + pb.w) / 2 + 4 &&
+          Math.abs(bestPos.ly - pb.y) < (badgeH + pb.h) / 2 + 3
+        ) {
+          const shift = (badgeH + pb.h) / 2 + 4 - Math.abs(bestPos.ly - pb.y);
+          if (bestPos.ly >= pb.y) {
+            bestPos.ly = Math.min(height - margin.bottom - badgeH / 2 - 4, bestPos.ly + shift);
+          } else {
+            bestPos.ly = Math.max(margin.top + badgeH / 2 + 4, bestPos.ly - shift);
+          }
+          bestPos.leader = true;
+        }
+      }
+
+      placedBoxes.push({ x: bestPos.lx, y: bestPos.ly, w: badgeW, h: badgeH });
+
+      return {
+        d,
+        cx,
+        cy,
+        r,
+        valStr,
+        badgeW,
+        badgeH,
+        lx: bestPos.lx,
+        ly: bestPos.ly,
+        needsLeader: Math.hypot(bestPos.lx - cx, bestPos.ly - (cy - r - 13)) > 12,
+      };
+    });
+
+    const labelsG = svg.append("g").attr("class", "c-labels-layer").style("pointer-events", "none");
+
+    // Optional leader lines for offset badges
+    labelItems.forEach((item) => {
+      if (item.needsLeader) {
+        labelsG
+          .append("line")
+          .attr("x1", item.cx)
+          .attr("y1", item.ly > item.cy ? item.cy + item.r : item.cy - item.r)
+          .attr("x2", item.lx)
+          .attr("y2", item.ly > item.cy ? item.ly - item.badgeH / 2 : item.ly + item.badgeH / 2)
+          .attr("stroke", palette[item.d.region] || "#3b82f6")
+          .attr("stroke-width", 1)
+          .attr("stroke-dasharray", "2,2")
+          .attr("stroke-opacity", 0.6);
+      }
+    });
+
+    // Pill Badges for Country Name + Value
+    const labelGroups = labelsG
+      .selectAll("g.c-label-group")
+      .data(labelItems, (item) => item.d.name)
+      .join("g")
+      .attr("class", "c-label-group")
+      .attr("transform", (item) => `translate(${item.lx},${item.ly})`);
+
+    labelGroups
+      .append("rect")
+      .attr("x", (item) => -item.badgeW / 2)
+      .attr("y", (item) => -item.badgeH / 2)
+      .attr("width", (item) => item.badgeW)
+      .attr("height", (item) => item.badgeH)
+      .attr("rx", 5)
+      .attr("ry", 5)
+      .attr("fill", theme === "Dark" ? "rgba(15, 23, 42, 0.92)" : "rgba(255, 255, 255, 0.95)")
+      .attr("stroke", (item) => palette[item.d.region] || "#3b82f6")
+      .attr("stroke-width", (item) => (selectedNation === item.d.name ? 2.2 : 1.2))
+      .attr("filter", "drop-shadow(0px 1px 2px rgba(0,0,0,0.15))");
+
+    labelGroups
+      .append("text")
       .attr("text-anchor", "middle")
-      .attr("font-size", "11px")
-      .attr("font-weight", "700")
-      .attr("fill", T.text)
-      .style("pointer-events", "none")
-      .text((d) => d.name);
+      .attr("dominant-baseline", "central")
+      .attr("font-size", "10.5px")
+      .call((text) => {
+        text
+          .append("tspan")
+          .attr("font-weight", "800")
+          .attr("fill", (item) => palette[item.d.region] || "#3b82f6")
+          .text((item) => item.d.name);
+        text
+          .append("tspan")
+          .attr("font-weight", "600")
+          .attr("fill", theme === "Dark" ? "#cbd5e1" : "#475569")
+          .text((item) => ` ${item.valStr}`);
+      });
 
     // Mouse Interaction
     bubbles
@@ -642,8 +768,8 @@ function Chart3D({ theme, palette, year }) {
     scene.background = new THREE.Color(T.threeBg);
 
     const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
-    camera.position.set(22, 18, 28);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 8, 30);
+    camera.lookAt(0, 1, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(W, H);
@@ -652,7 +778,7 @@ function Chart3D({ theme, palette, year }) {
     el.appendChild(renderer.domElement);
 
     // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
     const sun = new THREE.DirectionalLight(0xffffff, 1.2);
     sun.position.set(15, 25, 18);
     sun.castShadow = true;
@@ -702,6 +828,36 @@ function Chart3D({ theme, palette, year }) {
       sphere.castShadow = true;
       pivot.add(sphere);
 
+      // ─── 3D Country Name + Value Badge Sprite ───
+      if (d.pop > 100 || d.name === "China" || d.name === "United States" || d.name === "India") {
+        const valStr = `$${d.income >= 1000 ? (d.income / 1000).toFixed(1) + "k" : d.income} · ${d.lifeExp}y`;
+        const c = document.createElement("canvas");
+        c.width = 300;
+        c.height = 64;
+        const cx = c.getContext("2d");
+        cx.fillStyle = theme === "Dark" ? "rgba(15, 23, 42, 0.94)" : "rgba(255, 255, 255, 0.96)";
+        cx.beginPath();
+        cx.roundRect(3, 3, 294, 58, 10);
+        cx.fill();
+        cx.strokeStyle = colHex;
+        cx.lineWidth = 3;
+        cx.stroke();
+
+        cx.font = "bold 20px system-ui, -apple-system, sans-serif";
+        cx.fillStyle = colHex;
+        cx.textAlign = "center";
+        cx.textBaseline = "middle";
+        cx.fillText(`${d.name}: ${valStr}`, 150, 32);
+
+        const tex = new THREE.CanvasTexture(c);
+        tex.minFilter = THREE.LinearFilter;
+        const spMat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+        const sp = new THREE.Sprite(spMat);
+        sp.scale.set(3.2, 0.72, 1);
+        sp.position.set(xScale(d.income), yScale(d.lifeExp) + rad + 0.65, zPos);
+        pivot.add(sp);
+      }
+
       // Floor stem
       const stemGeo = new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(xScale(d.income), yScale(d.lifeExp), zPos),
@@ -715,6 +871,31 @@ function Chart3D({ theme, palette, year }) {
       const stem = new THREE.Line(stemGeo, stemMat);
       pivot.add(stem);
     });
+
+    // ─── 3D Year Display Banner ───
+    const yCan = document.createElement("canvas");
+    yCan.width = 240;
+    yCan.height = 70;
+    const yCtx = yCan.getContext("2d");
+    yCtx.fillStyle = theme === "Dark" ? "rgba(15, 23, 42, 0.94)" : "rgba(255, 255, 255, 0.94)";
+    yCtx.beginPath();
+    yCtx.roundRect(4, 4, 232, 62, 12);
+    yCtx.fill();
+    yCtx.strokeStyle = palette.Asia || "#3b82f6";
+    yCtx.lineWidth = 3;
+    yCtx.stroke();
+    yCtx.font = "bold 36px system-ui, -apple-system, sans-serif";
+    yCtx.fillStyle = palette.Asia || "#3b82f6";
+    yCtx.textAlign = "center";
+    yCtx.textBaseline = "middle";
+    yCtx.fillText(`YEAR: ${year}`, 120, 35);
+
+    const yTex = new THREE.CanvasTexture(yCan);
+    yTex.minFilter = THREE.LinearFilter;
+    const ySp = new THREE.Sprite(new THREE.SpriteMaterial({ map: yTex, transparent: true }));
+    ySp.scale.set(3.2, 0.9, 1);
+    ySp.position.set(0, 9.2, 0);
+    pivot.add(ySp);
 
     // Orbit Controls
     let isDragging = false, prevX = 0, prevY = 0;

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
+import limkarRouter from './limkarRoutes.js';
 
 const { Pool } = pkg;
 
@@ -26,6 +27,7 @@ pool.connect((err, client, release) => {
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/api/limkar', limkarRouter);
 
 // Create table if not exists
 const createTableQuery = `

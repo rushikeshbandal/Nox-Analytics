@@ -220,10 +220,11 @@ function Chart2D({ theme, palette, year, currentYearData }) {
   const T = UI_THEMES[theme];
 
   const width = 740;
-  const height = 520;
-  const margin = { top: 35, right: 95, bottom: 45, left: 190 };
+  const height = 540;
+  const margin = { top: 35, right: 110, bottom: 85, left: 190 };
   const topN = 10;
-  const barHeight = 38;
+  const barHeight = 28;
+  const barGap = 6;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -239,21 +240,25 @@ function Chart2D({ theme, palette, year, currentYearData }) {
       .style("border-radius", "8px")
       .style("font-family", "system-ui, -apple-system, sans-serif");
 
-    // Clean existing elements except permanent year watermark
-    let watermark = svg.select(".race-watermark");
+    // Background Year layer (positioned completely clear of bars & data values)
+    let bgLayer = svg.select(".bg-layer");
+    if (bgLayer.empty()) {
+      bgLayer = svg.append("g").attr("class", "bg-layer").style("pointer-events", "none");
+    }
+    let watermark = bgLayer.select(".race-watermark");
     if (watermark.empty()) {
-      watermark = svg
+      watermark = bgLayer
         .append("text")
         .attr("class", "race-watermark")
-        .attr("x", w - margin.right - 20)
-        .attr("y", h - margin.bottom - 20)
+        .attr("x", w - margin.right + 30)
+        .attr("y", h - 16)
         .attr("text-anchor", "end")
-        .attr("font-size", "110px")
+        .attr("font-size", "56px")
         .attr("font-weight", "900")
         .attr("fill", T.watermark)
         .style("user-select", "none");
     }
-    watermark.text(year);
+    watermark.attr("x", w - margin.right + 30).attr("y", h - 16).text(year);
 
     // X Scale based on max value of current year
     const maxValue = d3.max(currentYearData, (d) => d.value) || 1000;
@@ -285,17 +290,18 @@ function Chart2D({ theme, palette, year, currentYearData }) {
       });
 
     // Horizontal Grid Lines
+    const chartBottom = margin.top + 8 + topN * (barHeight + barGap) + 4;
     let gridG = svg.select(".race-grid");
     if (gridG.empty()) {
       gridG = svg.append("g").attr("class", "race-grid");
     }
     gridG
-      .attr("transform", `translate(0,${h - margin.bottom})`)
+      .attr("transform", `translate(0,${chartBottom})`)
       .call(
         d3
           .axisBottom(xScale)
           .ticks(6)
-          .tickSize(-(h - margin.top - margin.bottom))
+          .tickSize(-(chartBottom - margin.top))
           .tickFormat("")
       )
       .call((g) => {
@@ -309,13 +315,15 @@ function Chart2D({ theme, palette, year, currentYearData }) {
       bottomLabel = svg
         .append("text")
         .attr("class", "bottom-lbl")
-        .attr("x", (w + margin.left) / 2)
-        .attr("y", h - 14)
-        .attr("text-anchor", "middle")
+        .attr("x", margin.left + 140)
+        .attr("y", chartBottom + 26)
+        .attr("text-anchor", "start")
         .style("font-size", "12px")
         .style("font-weight", "600")
         .style("fill", T.text)
         .text("Annual Patient Cases (Thousands) →");
+    } else {
+      bottomLabel.attr("x", margin.left + 140).attr("y", chartBottom + 26);
     }
 
     // Bars Group
@@ -334,7 +342,7 @@ function Chart2D({ theme, palette, year, currentYearData }) {
       .enter()
       .append("g")
       .attr("class", "race-bar")
-      .attr("transform", (d, i) => `translate(0,${margin.top + 15 + i * (barHeight + 6)})`);
+      .attr("transform", (d, i) => `translate(0,${margin.top + 8 + i * (barHeight + barGap)})`);
 
     barsEnter
       .append("rect")
@@ -389,7 +397,7 @@ function Chart2D({ theme, palette, year, currentYearData }) {
       .transition()
       .duration(450)
       .ease(d3.easeCubicInOut)
-      .attr("transform", (d, i) => `translate(0,${margin.top + 15 + i * (barHeight + 6)})`);
+      .attr("transform", (d, i) => `translate(0,${margin.top + 8 + i * (barHeight + barGap)})`);
 
     barsMerge
       .select("rect")
@@ -441,14 +449,14 @@ function Chart3D({ theme, palette, year, currentYearData }) {
 
     let animId, renderer;
     const W = el.clientWidth || 740;
-    const H = 520;
+    const H = 540;
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(T.threeBg);
 
     const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
-    camera.position.set(18, 16, 26);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 3, 26);
+    camera.lookAt(-1, 0, 0);
 
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(W, H);
@@ -457,14 +465,14 @@ function Chart3D({ theme, palette, year, currentYearData }) {
     el.appendChild(renderer.domElement);
 
     // Lights
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    scene.add(new THREE.AmbientLight(0xffffff, 0.85));
     const sun = new THREE.DirectionalLight(0xffffff, 1.2);
     sun.position.set(16, 24, 18);
     sun.castShadow = true;
     scene.add(sun);
 
     // Floor & 3D Grid
-    const floorGeo = new THREE.PlaneGeometry(36, 36);
+    const floorGeo = new THREE.PlaneGeometry(42, 36);
     const floorMat = new THREE.MeshStandardMaterial({
       color: theme === "Dark" ? 0x111827 : 0xf1f5f9,
       roughness: 0.9,
@@ -475,17 +483,17 @@ function Chart3D({ theme, palette, year, currentYearData }) {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const grid = new THREE.GridHelper(36, 18, theme === "Dark" ? 0x374151 : 0xcbd5e1, theme === "Dark" ? 0x1f2937 : 0xe2e8f0);
+    const grid = new THREE.GridHelper(42, 21, theme === "Dark" ? 0x374151 : 0xcbd5e1, theme === "Dark" ? 0x1f2937 : 0xe2e8f0);
     grid.position.y = -7.95;
     scene.add(grid);
 
     const pivot = new THREE.Group();
     scene.add(pivot);
 
-    // 3D Extruded Horizontal Bars
+    // 3D Extruded Horizontal Bars with Labels and Data Values
     const top10 = currentYearData.slice(0, 10);
     const maxVal = d3.max(top10, (d) => d.value) || 1000;
-    const barWidthScale = d3.scaleLinear().domain([0, maxVal]).range([0.5, 14]);
+    const barWidthScale = d3.scaleLinear().domain([0, maxVal]).range([0.5, 13]);
 
     top10.forEach((d, i) => {
       const colHex = palette[d.sector] || "#3b82f6";
@@ -499,8 +507,8 @@ function Chart3D({ theme, palette, year, currentYearData }) {
         emissiveIntensity: i === 0 ? 0.45 : 0.15,
       });
       const barMesh = new THREE.Mesh(boxGeo, boxMat);
-      // Align left at x = -7
-      barMesh.position.set(-7 + w / 2, 5 - i * 1.3, 0);
+      // Align left at x = -6.5
+      barMesh.position.set(-6.5 + w / 2, 5.2 - i * 1.3, 0);
       barMesh.castShadow = true;
       pivot.add(barMesh);
 
@@ -508,13 +516,94 @@ function Chart3D({ theme, palette, year, currentYearData }) {
       const markerGeo = new THREE.BoxGeometry(0.2, 0.9, 1.3);
       const markerMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0xeab308 : 0x94a3b8 });
       const marker = new THREE.Mesh(markerGeo, markerMat);
-      marker.position.set(-7.1, 5 - i * 1.3, 0);
+      marker.position.set(-6.6, 5.2 - i * 1.3, 0);
       pivot.add(marker);
+
+      // ─── 3D Data Value Badge Sprite (tip of bar) ───
+      const valCanvas = document.createElement("canvas");
+      valCanvas.width = 190;
+      valCanvas.height = 54;
+      const vctx = valCanvas.getContext("2d");
+      vctx.fillStyle = theme === "Dark" ? "rgba(17, 24, 39, 0.94)" : "rgba(255, 255, 255, 0.96)";
+      vctx.beginPath();
+      vctx.roundRect(3, 3, 184, 48, 8);
+      vctx.fill();
+      vctx.strokeStyle = colHex;
+      vctx.lineWidth = 2.5;
+      vctx.stroke();
+
+      vctx.font = "bold 24px system-ui, -apple-system, sans-serif";
+      vctx.fillStyle = colHex;
+      vctx.textAlign = "center";
+      vctx.textBaseline = "middle";
+      vctx.fillText(`${d3.format(",")(d.value)}k`, 95, 27);
+
+      const valTexture = new THREE.CanvasTexture(valCanvas);
+      valTexture.minFilter = THREE.LinearFilter;
+      const valSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: valTexture, transparent: true }));
+      valSprite.scale.set(1.9, 0.54, 1);
+      valSprite.position.set(-6.5 + w + 1.15, 5.2 - i * 1.3, 0);
+      pivot.add(valSprite);
+
+      // ─── Condition Name & Rank Sprite (left side) ───
+      const nameCanvas = document.createElement("canvas");
+      nameCanvas.width = 340;
+      nameCanvas.height = 54;
+      const nctx = nameCanvas.getContext("2d");
+      nctx.fillStyle = theme === "Dark" ? "rgba(17, 24, 39, 0.92)" : "rgba(255, 255, 255, 0.95)";
+      nctx.beginPath();
+      nctx.roundRect(3, 3, 334, 48, 8);
+      nctx.fill();
+      nctx.strokeStyle = i === 0 ? "#eab308" : (theme === "Dark" ? "#374151" : "#cbd5e1");
+      nctx.lineWidth = 2;
+      nctx.stroke();
+
+      nctx.font = "bold 22px system-ui, -apple-system, sans-serif";
+      nctx.fillStyle = i === 0 ? "#eab308" : (theme === "Dark" ? "#94a3b8" : "#64748b");
+      nctx.textAlign = "left";
+      nctx.textBaseline = "middle";
+      nctx.fillText(`#${i + 1}`, 14, 27);
+
+      nctx.fillStyle = theme === "Dark" ? "#f8fafc" : "#0f172a";
+      nctx.fillText(d.name, 62, 27);
+
+      const nameTexture = new THREE.CanvasTexture(nameCanvas);
+      nameTexture.minFilter = THREE.LinearFilter;
+      const nameSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: nameTexture, transparent: true }));
+      nameSprite.scale.set(3.4, 0.54, 1);
+      nameSprite.position.set(-8.6, 5.2 - i * 1.3, 0);
+      pivot.add(nameSprite);
     });
+
+    // ─── 3D Year Display Banner ───
+    const yrCanvas = document.createElement("canvas");
+    yrCanvas.width = 240;
+    yrCanvas.height = 70;
+    const yctx = yrCanvas.getContext("2d");
+    yctx.fillStyle = theme === "Dark" ? "rgba(17, 24, 39, 0.95)" : "rgba(255, 255, 255, 0.95)";
+    yctx.beginPath();
+    yctx.roundRect(4, 4, 232, 62, 12);
+    yctx.fill();
+    yctx.strokeStyle = palette.Cardiovascular || "#ef4444";
+    yctx.lineWidth = 3;
+    yctx.stroke();
+
+    yctx.font = "bold 36px system-ui, -apple-system, sans-serif";
+    yctx.fillStyle = palette.Cardiovascular || "#ef4444";
+    yctx.textAlign = "center";
+    yctx.textBaseline = "middle";
+    yctx.fillText(`YEAR: ${year}`, 120, 35);
+
+    const yrTexture = new THREE.CanvasTexture(yrCanvas);
+    yrTexture.minFilter = THREE.LinearFilter;
+    const yrSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: yrTexture, transparent: true }));
+    yrSprite.scale.set(3.0, 0.88, 1);
+    yrSprite.position.set(-1, 7.3, 0);
+    pivot.add(yrSprite);
 
     // Orbit Dragging
     let isDragging = false, prevX = 0, prevY = 0;
-    let rotX = 0.2, rotY = 0.4, autoSpin = true;
+    let rotX = 0.15, rotY = 0.25, autoSpin = true;
     pivot.rotation.x = rotX;
     pivot.rotation.y = rotY;
 
@@ -532,7 +621,7 @@ function Chart3D({ theme, palette, year, currentYearData }) {
     const onMove = (e) => {
       if (!isDragging) return;
       rotY += (e.clientX - prevX) * 0.006;
-      rotX = Math.max(-0.6, Math.min(0.8, rotX + (e.clientY - prevY) * 0.004));
+      rotX = Math.max(-0.5, Math.min(0.7, rotX + (e.clientY - prevY) * 0.004));
       prevX = e.clientX;
       prevY = e.clientY;
     };
@@ -563,7 +652,7 @@ function Chart3D({ theme, palette, year, currentYearData }) {
 
   return (
     <div style={{ position: "relative", width: "100%", border: `1px solid ${T.border}`, borderRadius: 8, overflow: "hidden" }}>
-      <div ref={mountRef} style={{ width: "100%", height: 520 }} />
+      <div ref={mountRef} style={{ width: "100%", height: 540 }} />
       <div
         style={{
           position: "absolute",
@@ -578,7 +667,7 @@ function Chart3D({ theme, palette, year, currentYearData }) {
           border: `1px solid ${T.border}`,
         }}
       >
-        💡 Drag to rotate in 3D · 3D Extruded Stadium Bars · X=Volume · Y=Rank #1 to #10
+        💡 Drag to rotate in 3D · 3D Extruded Stadium Bars · Data Values Visible at Bar Ends
       </div>
     </div>
   );

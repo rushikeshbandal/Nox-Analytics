@@ -59,7 +59,20 @@ const ANM_CHARTS = [
   "OrthographicToEquirectangular",
   "WorldTour",
   "WalmartsGrowth",
-  "HierarchicalBarChart"
+  "HierarchicalBarChart",
+  "CollapsibleTree",
+  "ZoomableIcicle",
+  "ZoomableSunburst",
+  "SortableBarChart",
+  "IcelandicPopulation",
+  "PieChartUpdate",
+  "Arctween",
+  "VersorDragging",
+  "SequencesSunburst",
+  "BrushableScatterplot",
+  "BrushableScatterplotMatrix",
+  "Pannablechart",
+  "CandlestickChart"
 ];
 
 // For Limkar and Thalsa, we define a customized subset of 40 charts matching e-commerce and IT service desk profiles

@@ -79,6 +79,7 @@ import ChartCard from "../component/ChartCard.jsx";
 import { anmChartService } from "../services/anmChartService";
 import { CHART_SELECTIONS } from "../config/chartSelections";
 import { noxAnalyticsService } from "../services/noxAnalyticsService";
+import LimkarAnalyticsDashboard from "../component/LimkarAnalyticsDashboard";
 
 // ==== Merged from Priya's (nox-debug-master) project — charts not present in base ====
 const AreaWithMissingData = React.lazy(() => import("../component/Charts/AreaWithMissingData.jsx"));
@@ -126,6 +127,18 @@ const OrthographicToEquirectangular = React.lazy(() => import("../component/Char
 const WorldTour = React.lazy(() => import("../component/Charts/WorldTour.jsx"));
 const WalmartsGrowth = React.lazy(() => import("../component/Charts/WalmartsGrowth.jsx"));
 const HierarchicalBarChart = React.lazy(() => import("../component/Charts/HierarchicalBarChart.jsx"));
+const CollapsibleTree = React.lazy(() => import("../component/Charts/CollapsibleTree.jsx"));
+const ZoomableIcicle = React.lazy(() => import("../component/Charts/ZoomableIcicle.jsx"));
+const ZoomableSunburst = React.lazy(() => import("../component/Charts/ZoomableSunburst.jsx"));
+const SortableBarChart = React.lazy(() => import("../component/Charts/SortableBarChart.jsx"));
+const IcelandicPopulation = React.lazy(() => import("../component/Charts/IcelandicPopulation.jsx"));
+const PieChartUpdate = React.lazy(() => import("../component/Charts/PieChartUpdate.jsx"));
+const Arctween = React.lazy(() => import("../component/Charts/Arctween.jsx"));
+const VersorDragging = React.lazy(() => import("../component/Charts/VersorDragging.jsx"));
+const SequencesSunburst = React.lazy(() => import("../component/Charts/SequencesSunburst.jsx"));
+const BrushableScatterplot = React.lazy(() => import("../component/Charts/BrushableScatterplot.jsx"));
+const BrushableScatterplotMatrix = React.lazy(() => import("../component/Charts/BrushableScatterplotMatrix.jsx"));
+const Pannablechart = React.lazy(() => import("../component/Charts/Pannablechart.jsx"));
 
 
 const CHART_CONTEXTS = {
@@ -195,7 +208,21 @@ const CHART_CONTEXTS = {
   "OrthographicToEquirectangular": "GEOGRAPHY",
   "WorldTour": "GEOGRAPHY",
   "WalmartsGrowth": "GEOGRAPHY",
-  "HierarchicalBarChart": "INVENTORY"
+  "HierarchicalBarChart": "INVENTORY",
+  "ZoomableTreemap": "CONSULTATIONS",
+  "ZoomableCirclePacking": "WARDS",
+  "CollapsibleTree": "WARDS",
+  "ZoomableIcicle": "WARDS",
+  "ZoomableSunburst": "BILLING",
+  "SortableBarChart": "CONSULTATIONS",
+  "IcelandicPopulation": "GEOGRAPHY",
+  "PieChartUpdate": "BILLING",
+  "Arctween": "WARDS",
+  "VersorDragging": "GEOGRAPHY",
+  "SequencesSunburst": "CONSULTATIONS",
+  "BrushableScatterplot": "BILLING",
+  "BrushableScatterplotMatrix": "CONSULTATIONS",
+  "Pannablechart": "INVENTORY"
 };
 
 const LazyChartCard = ({ name, getChartName, Component, accentColor, onDrillDown, isAnm, isDataEmpty, fetchNew, isHighlighted = false }) => {
@@ -267,6 +294,7 @@ const LazyChartCard = ({ name, getChartName, Component, accentColor, onDrillDown
 
 const Project = () => {
   const { project_id } = useParams();
+  const [limkarViewMode, setLimkarViewMode] = useState("live_analytics");
   const [approved, setApproved] = useState([]);
   const navigate = useNavigate();
   const [completed, setCompleted] = useState([]);
@@ -916,7 +944,6 @@ const Project = () => {
     { name: "BubbleMap", Component: BubbleMap },
     { name: "CalendarHeatmap", Component: CalendarHeatmap },
     { name: "CancerSurvivalSlopeChart", Component: CancerSurvivalSlopeChart },
-    { name: "CandlestickChart", Component: CandlestickChart },
     { name: "ChordChart", Component: ChordChart },
     { name: "DJICalendarHeatmap", Component: DJICalendarHeatmap },
     { name: "DirectedChordDiagram", Component: DirectedChordDiagram },
@@ -954,7 +981,20 @@ const Project = () => {
     { name: "OrthographicToEquirectangular", Component: OrthographicToEquirectangular },
     { name: "WorldTour", Component: WorldTour },
     { name: "WalmartsGrowth", Component: WalmartsGrowth },
-    { name: "HierarchicalBarChart", Component: HierarchicalBarChart }
+    { name: "HierarchicalBarChart", Component: HierarchicalBarChart },
+    { name: "CollapsibleTree", Component: CollapsibleTree },
+    { name: "ZoomableIcicle", Component: ZoomableIcicle },
+    { name: "ZoomableSunburst", Component: ZoomableSunburst },
+    { name: "SortableBarChart", Component: SortableBarChart },
+    { name: "IcelandicPopulation", Component: IcelandicPopulation },
+    { name: "PieChartUpdate", Component: PieChartUpdate },
+    { name: "Arctween", Component: Arctween },
+    { name: "VersorDragging", Component: VersorDragging },
+    { name: "SequencesSunburst", Component: SequencesSunburst },
+    { name: "BrushableScatterplot", Component: BrushableScatterplot },
+    { name: "BrushableScatterplotMatrix", Component: BrushableScatterplotMatrix },
+    { name: "Pannablechart", Component: Pannablechart },
+    { name: "CandlestickChart", Component: CandlestickChart }
   ];
 
   const getChartName = (originalName) => {
@@ -1023,7 +1063,7 @@ const Project = () => {
         "BubbleMap": "Outreach Center Cases Mapping",
         "CalendarHeatmap": "Daily Consultation Density Grid",
         "CancerSurvivalSlopeChart": "Post-treatment Recovery Slope",
-        "CandlestickChart": "Daily Pharmacy Revenue Candlesticks",
+        "CandlestickChart": "Live Stock Exchange & Crypto Candlesticks",
         "ChordChart": "Inter-Ward Patient Referrals Flow",
         "DJICalendarHeatmap": "Emergency Room Admission Density",
         "DirectedChordDiagram": "Primary vs Secondary Care Flow",
@@ -1061,7 +1101,19 @@ const Project = () => {
         "OrthographicToEquirectangular": "Planetary Projection Morphing Analysis",
         "WorldTour": "Global Health Outposts World Flight",
         "WalmartsGrowth": "Clinical Network Regional Expansion Wave",
-        "HierarchicalBarChart": "Hierarchical Department Capital Allocation"
+        "HierarchicalBarChart": "Hierarchical Department Capital Allocation",
+        "CollapsibleTree": "Interactive Medical Hierarchy Tree",
+        "ZoomableIcicle": "Hierarchical Partition Capacity Icicle",
+        "ZoomableSunburst": "Concentric Department Capital Sunburst",
+        "SortableBarChart": "Multi-Criteria Sortable Department Performance",
+        "IcelandicPopulation": "Historical Demographic Age Pyramid 1841–2019",
+        "PieChartUpdate": "Dynamic Morphing Specialty Distribution",
+        "Arctween": "Concentric Operational Load Arc Gauges",
+        "VersorDragging": "3D Orthographic Versor Healthcare Globe",
+        "SequencesSunburst": "Clinical Patient Pathway Sequences",
+        "BrushableScatterplot": "Interactive 2D Brushable Clinical Scatterplot",
+        "BrushableScatterplotMatrix": "Pairwise Scatter Plot Matrix Cross-Brushing",
+        "Pannablechart": "Pannable Inpatient Admissions with Context Brush"
       };
       return anmNames[originalName] || originalName;
     }
@@ -1101,12 +1153,44 @@ const Project = () => {
           />
         </div>
       )}
-      <h1 className="text-2xl font-bold text-center mb-8 text-black">
+      <h1 className="text-2xl font-bold text-center mb-6 text-black">
         {idMap[project_id] || "Project Dashboard"}
       </h1>
-      <PaletteManager/>
-    <div className="mb-10">
-    </div>
+
+      {project_id === 'limkar-ecommerce' && (
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex bg-slate-100 p-1.5 rounded-2xl shadow-inner border border-slate-200">
+            <button
+              onClick={() => setLimkarViewMode('live_analytics')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                limkarViewMode === 'live_analytics'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <span>📊</span> Limkar Live Analytics & Traffic Intelligence
+            </button>
+            <button
+              onClick={() => setLimkarViewMode('legacy_gantt')}
+              className={`px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 ${
+                limkarViewMode === 'legacy_gantt'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <span>📅</span> Project Schedule & Gantt Charts
+            </button>
+          </div>
+        </div>
+      )}
+
+      {project_id === 'limkar-ecommerce' && limkarViewMode === 'live_analytics' ? (
+        <LimkarAnalyticsDashboard />
+      ) : (
+        <>
+          <PaletteManager/>
+          <div className="mb-10">
+          </div>
       <div className="flex justify-between mb-8">{/* Summary Stats */}
       <h1 className="text-xl text-gray-500 font-bold mb-4">
         Overview of Change Requests
@@ -1733,6 +1817,8 @@ const Project = () => {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

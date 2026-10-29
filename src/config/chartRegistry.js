@@ -71,7 +71,6 @@ export const CHART_CONTEXTS = {
   "BubbleMap": "GEOGRAPHY",
   "CalendarHeatmap": "CONSULTATIONS",
   "CancerSurvivalSlopeChart": "WARDS",
-  "CandlestickChart": "BILLING",
   "ChordChart": "WARDS",
   "DJICalendarHeatmap": "CONSULTATIONS",
   "DirectedChordDiagram": "WARDS",
@@ -112,7 +111,22 @@ export const CHART_CONTEXTS = {
   "OrthographicToEquirectangular": "GEOGRAPHY",
   "WorldTour": "GEOGRAPHY",
   "WalmartsGrowth": "GEOGRAPHY",
-  "HierarchicalBarChart": "INVENTORY"
+  "HierarchicalBarChart": "INVENTORY",
+  "ZoomableTreemap": "CONSULTATIONS",
+  "ZoomableCirclePacking": "WARDS",
+  "CollapsibleTree": "WARDS",
+  "ZoomableIcicle": "WARDS",
+  "ZoomableSunburst": "BILLING",
+  "SortableBarChart": "CONSULTATIONS",
+  "IcelandicPopulation": "GEOGRAPHY",
+  "PieChartUpdate": "BILLING",
+  "Arctween": "WARDS",
+  "VersorDragging": "GEOGRAPHY",
+  "SequencesSunburst": "CONSULTATIONS",
+  "BrushableScatterplot": "BILLING",
+  "BrushableScatterplotMatrix": "CONSULTATIONS",
+  "Pannablechart": "INVENTORY",
+  "CandlestickChart": "BILLING"
 };
 
 export const CLINICAL_TITLES = {
@@ -179,7 +193,7 @@ export const CLINICAL_TITLES = {
   "BubbleMap": "Outreach Center Cases Mapping",
   "CalendarHeatmap": "Daily Consultation Density Grid",
   "CancerSurvivalSlopeChart": "Post-treatment Recovery Slope",
-  "CandlestickChart": "Daily Pharmacy Revenue Candlesticks",
+  "CandlestickChart": "Live Stock Exchange & Crypto Candlesticks",
   "ChordChart": "Inter-Ward Patient Referrals Flow",
   "DJICalendarHeatmap": "Emergency Room Admission Density",
   "DirectedChordDiagram": "Primary vs Secondary Care Flow",
@@ -217,7 +231,18 @@ export const CLINICAL_TITLES = {
   "OrthographicToEquirectangular": "Planetary Projection Morphing Analysis",
   "WorldTour": "Global Health Outposts World Flight",
   "WalmartsGrowth": "Clinical Network Regional Expansion Wave",
-  "HierarchicalBarChart": "Hierarchical Department Capital Allocation"
+  "HierarchicalBarChart": "Hierarchical Department Capital Allocation",
+  "CollapsibleTree": "Interactive Medical Hierarchy Tree",
+  "ZoomableIcicle": "Hierarchical Partition Capacity Icicle",
+  "ZoomableSunburst": "Concentric Department Capital Sunburst",
+  "SortableBarChart": "Multi-Criteria Sortable Department Performance",
+  "IcelandicPopulation": "Historical Demographic Age Pyramid 1841–2019",
+  "PieChartUpdate": "Dynamic Morphing Specialty Distribution",
+  "Arctween": "Concentric Operational Load Arc Gauges",
+  "VersorDragging": "3D Orthographic Versor Healthcare Globe",
+  "SequencesSunburst": "Clinical Patient Pathway Sequences",
+  "BrushableScatterplot": "Interactive 2D Brushable Clinical Scatterplot",
+  "BrushableScatterplotMatrix": "Pairwise Scatter Plot Matrix Cross-Brushing",
 };
 
 // Converts PascalCase to words with spaces
@@ -245,12 +270,17 @@ const getChartIcon = (name) => {
   return "📉";
 };
 
+const CHART_CUSTOM_KEYWORDS = {
+  "CandlestickChart": "stock exchange market live realtime btc crypto trading ticks share ohlc coinbase aapl graph"
+};
+
 // All available charts list
 export const ALL_CHARTS = Object.keys(CHART_CONTEXTS).map(name => {
   const clinicalTitle = CLINICAL_TITLES[name] || humanize(name);
   const humanTitle = humanize(name);
   const category = CHART_CONTEXTS[name] || "CONSULTATIONS";
   const icon = getChartIcon(name);
+  const custom = CHART_CUSTOM_KEYWORDS[name] || "";
 
   return {
     name,
@@ -259,7 +289,7 @@ export const ALL_CHARTS = Object.keys(CHART_CONTEXTS).map(name => {
     category,
     icon,
     // Search tokens for fast matching
-    searchKeywords: `${name} ${clinicalTitle} ${humanTitle} ${category}`.toLowerCase()
+    searchKeywords: `${name} ${clinicalTitle} ${humanTitle} ${category} ${custom}`.toLowerCase()
   };
 });
 

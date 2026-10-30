@@ -1153,9 +1153,19 @@ const Project = () => {
           />
         </div>
       )}
-      <h1 className="text-2xl font-bold text-center mb-6 text-black">
-        {idMap[project_id] || "Project Dashboard"}
-      </h1>
+      {project_id === 'limkar-ecommerce' ? (
+        <div className="flex justify-center mb-6">
+          <img
+            src="/limkar-logo.jpg"
+            alt="Limkar"
+            className="h-14 sm:h-16 md:h-20 object-contain rounded-xl shadow-md border border-slate-100"
+          />
+        </div>
+      ) : (
+        <h1 className="text-2xl font-bold text-center mb-6 text-black">
+          {idMap[project_id] || "Project Dashboard"}
+        </h1>
+      )}
 
       {project_id === 'limkar-ecommerce' && (
         <div className="flex justify-center mb-8">

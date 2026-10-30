@@ -23,7 +23,6 @@ import {
   FileText,
   ShoppingBag,
   RefreshCw,
-  Key,
   CheckCircle,
   Database,
   ArrowUpRight,
@@ -86,13 +85,6 @@ const LimkarAnalyticsDashboard = () => {
   const [localClickMap, setLocalClickMap] = useState(() => limkarService.getLocalClickMap());
   const [clickToast, setClickToast] = useState(null);
   const [isSimulating, setIsSimulating] = useState(false);
-
-  // Admin token modal
-  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const [customToken, setCustomToken] = useState(limkarService.getAdminToken());
-  const [tokenStatusMessage, setTokenStatusMessage] = useState('');
 
   // Initial load
   useEffect(() => {
@@ -286,31 +278,6 @@ const LimkarAnalyticsDashboard = () => {
     setTimeout(() => setClickToast(null), 3000);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setTokenStatusMessage('Connecting to Limkar API...');
-    const res = await limkarService.login(adminEmail, adminPassword);
-    if (res?.data?.token) {
-      setCustomToken(res.data.token);
-      setTokenStatusMessage('Authenticated! 30-day token generated successfully.');
-      setTimeout(() => {
-        setIsTokenModalOpen(false);
-        loadAllData();
-      }, 1000);
-    } else {
-      setTokenStatusMessage(res?.message || 'Login failed. Check credentials.');
-    }
-  };
-
-  const handleSaveTokenDirectly = () => {
-    limkarService.setAdminToken(customToken);
-    setTokenStatusMessage('Token saved locally!');
-    setTimeout(() => {
-      setIsTokenModalOpen(false);
-      loadAllData();
-    }, 800);
-  };
-
   // Render Top List Table content based on active pill
   const renderTopList = () => {
     if (!trafficData) return null;
@@ -408,17 +375,9 @@ const LimkarAnalyticsDashboard = () => {
         {/* TOP ACTIONS */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setIsTokenModalOpen(true)}
-            className="flex items-center gap-2 bg-white border border-slate-200 hover:border-slate-300 shadow-sm text-slate-700 px-3.5 py-2 rounded-lg text-xs md:text-sm font-medium transition-all"
-          >
-            <Key size={15} className="text-indigo-600" />
-            {limkarService.getAdminToken() ? 'Admin Token Active' : 'Configure Admin Token'}
-          </button>
-
-          <button
             onClick={loadAllData}
             disabled={isRefreshing}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-semibold shadow-sm transition-all"
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-xs md:text-sm font-semibold shadow-sm transition-all cursor-pointer"
           >
             <RefreshCw size={15} className={isRefreshing ? 'animate-spin' : ''} />
             Sync Now
@@ -1828,87 +1787,6 @@ const LimkarAnalyticsDashboard = () => {
             );
           })()}
 
-        </div>
-      )}
-
-      {/* ADMIN AUTH & CREDENTIALS MODAL */}
-      {isTokenModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 md:p-8 max-w-md w-full relative">
-            <button
-              onClick={() => setIsTokenModalOpen(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-lg"
-            >
-              ✕
-            </button>
-
-            <h3 className="text-lg font-bold text-slate-900 mb-1 flex items-center gap-2">
-              <Key size={18} className="text-indigo-600" />
-              Limkar API Admin Authentication
-            </h3>
-            <p className="text-xs text-slate-500 mb-6">
-              Authenticate via <code className="bg-slate-100 px-1 py-0.5 rounded font-mono">/auth/login</code> to pull live admin orders, users, and payment records.
-            </p>
-
-            <form onSubmit={handleLogin} className="space-y-4 mb-6">
-              <div>
-                <label className="text-xs font-semibold text-slate-600 block mb-1">Admin Email</label>
-                <input
-                  type="email"
-                  placeholder="admin@limkar.in"
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-slate-600 block mb-1">Admin Password</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-all"
-              >
-                Log In & Generate 30-Day Token
-              </button>
-            </form>
-
-            <div className="relative border-t border-slate-200 my-4 text-center">
-              <span className="bg-white px-2 text-[11px] text-slate-400 font-medium absolute -top-2 left-1/2 -translate-x-1/2">
-                OR PASTE EXISTING BEARER TOKEN
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Paste Bearer token here..."
-                value={customToken}
-                onChange={(e) => setCustomToken(e.target.value)}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-800"
-              />
-              <button
-                onClick={handleSaveTokenDirectly}
-                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2 rounded-lg text-xs transition-all"
-              >
-                Save Token Directly
-              </button>
-            </div>
-
-            {tokenStatusMessage && (
-              <p className="mt-4 text-xs text-center font-medium text-indigo-600 bg-indigo-50 py-2 rounded-lg">
-                {tokenStatusMessage}
-              </p>
-            )}
-          </div>
         </div>
       )}
 

@@ -129,6 +129,11 @@ const Header = ({ isSidebarOpen, setSidebarOpen }) => {
       })
     );
 
+    // Clear search query filter so the selected chart is fully visible in DOM
+    window.dispatchEvent(
+      new CustomEvent("chartSearchQuery", { detail: "" })
+    );
+
     // Check if chart element already exists in the current DOM
     const chartCardElement = document.getElementById(`chart-${chart.name}`);
 

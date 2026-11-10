@@ -72,7 +72,28 @@ const ANM_CHARTS = [
   "BrushableScatterplot",
   "BrushableScatterplotMatrix",
   "Pannablechart",
-  "CandlestickChart"
+  "CandlestickChart",
+  "ZoomableAreaChart",
+  "ZoomableBarChart",
+  "SeamlessZoomableMapTiles",
+  "BollingerBands",
+  "KernelDensityEstimation",
+  "DensityContours",
+  "VolcanoContours",
+  "Contours",
+  "Hexbin",
+  "HexbinArea",
+  "HexbinMap",
+  "QQPlot",
+  "NormalQuantilePlot",
+  "ParallelSets",
+  "Treemap",
+  "CascadedTreemap",
+  "NestedTreemap",
+  "Movingaverage",
+  "Boxplot",
+  "Histogram",
+  "HierarchicalEdgeBounding"
 ];
 
 // For Limkar and Thalsa, we define a customized subset of 40 charts matching e-commerce and IT service desk profiles

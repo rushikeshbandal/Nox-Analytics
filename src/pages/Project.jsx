@@ -78,6 +78,7 @@ import ColorWheel from "../component/colorwheel.jsx";
 import ChartCard from "../component/ChartCard.jsx";
 import { anmChartService } from "../services/anmChartService";
 import { CHART_SELECTIONS } from "../config/chartSelections";
+import { matchesChart } from "../config/chartRegistry";
 import { noxAnalyticsService } from "../services/noxAnalyticsService";
 import LimkarAnalyticsDashboard from "../component/LimkarAnalyticsDashboard";
 
@@ -139,6 +140,27 @@ const SequencesSunburst = React.lazy(() => import("../component/Charts/Sequences
 const BrushableScatterplot = React.lazy(() => import("../component/Charts/BrushableScatterplot.jsx"));
 const BrushableScatterplotMatrix = React.lazy(() => import("../component/Charts/BrushableScatterplotMatrix.jsx"));
 const Pannablechart = React.lazy(() => import("../component/Charts/Pannablechart.jsx"));
+const ZoomableAreaChart = React.lazy(() => import("../component/Charts/ZoomableAreaChart.jsx"));
+const ZoomableBarChart = React.lazy(() => import("../component/Charts/ZoomableBarChart.jsx"));
+const SeamlessZoomableMapTiles = React.lazy(() => import("../component/Charts/SeamlessZoomableMapTiles.jsx"));
+const BollingerBands = React.lazy(() => import("../component/Charts/BollingerBands.jsx"));
+const KernelDensityEstimation = React.lazy(() => import("../component/Charts/KernelDensityEstimation.jsx"));
+const DensityContours = React.lazy(() => import("../component/Charts/DensityContours.jsx"));
+const VolcanoContours = React.lazy(() => import("../component/Charts/VolcanoContours.jsx"));
+const Contours = React.lazy(() => import("../component/Charts/Contours.jsx"));
+const Hexbin = React.lazy(() => import("../component/Charts/Hexbin.jsx"));
+const HexbinArea = React.lazy(() => import("../component/Charts/HexbinArea.jsx"));
+const HexbinMap = React.lazy(() => import("../component/Charts/HexbinMap.jsx"));
+const QQPlot = React.lazy(() => import("../component/Charts/QQPlot.jsx"));
+const NormalQuantilePlot = React.lazy(() => import("../component/Charts/NormalQuantilePlot.jsx"));
+const ParallelSets = React.lazy(() => import("../component/Charts/ParallelSets.jsx"));
+const Treemap = React.lazy(() => import("../component/Charts/Treemap.jsx"));
+const CascadedTreemap = React.lazy(() => import("../component/Charts/CascadedTreemap.jsx"));
+const NestedTreemap = React.lazy(() => import("../component/Charts/NestedTreemap.jsx"));
+const Movingaverage = React.lazy(() => import("../component/Charts/Movingaverage.jsx"));
+const Boxplot = React.lazy(() => import("../component/Charts/Boxplot.jsx"));
+const Histogram = React.lazy(() => import("../component/Charts/Histogram.jsx"));
+const HierarchicalEdgeBounding = React.lazy(() => import("../component/Charts/HierarchicalEdgeBounding.jsx"));
 
 
 const CHART_CONTEXTS = {
@@ -222,7 +244,29 @@ const CHART_CONTEXTS = {
   "SequencesSunburst": "CONSULTATIONS",
   "BrushableScatterplot": "BILLING",
   "BrushableScatterplotMatrix": "CONSULTATIONS",
-  "Pannablechart": "INVENTORY"
+  "Pannablechart": "INVENTORY",
+  "ZoomableAreaChart": "CONSULTATIONS",
+  "ZoomableBarChart": "CONSULTATIONS",
+  "SeamlessZoomableMapTiles": "GEOGRAPHY",
+  "BollingerBands": "BILLING",
+  "KernelDensityEstimation": "CONSULTATIONS",
+  "DensityContours": "CONSULTATIONS",
+  "VolcanoContours": "CONSULTATIONS",
+  "Contours": "GEOGRAPHY",
+  "Hexbin": "CONSULTATIONS",
+  "HexbinArea": "CONSULTATIONS",
+  "HexbinMap": "GEOGRAPHY",
+  "QQPlot": "BILLING",
+  "NormalQuantilePlot": "BILLING",
+  "ParallelSets": "CONSULTATIONS",
+  "Treemap": "CONSULTATIONS",
+  "CascadedTreemap": "CONSULTATIONS",
+  "NestedTreemap": "WARDS",
+  "Movingaverage": "CONSULTATIONS",
+  "Boxplot": "CONSULTATIONS",
+  "Histogram": "CONSULTATIONS",
+  "HierarchicalEdgeBounding": "CONSULTATIONS",
+  "ConnectScatteredPlot": "CONSULTATIONS"
 };
 
 const LazyChartCard = ({ name, getChartName, Component, accentColor, onDrillDown, isAnm, isDataEmpty, fetchNew, isHighlighted = false }) => {
@@ -732,6 +776,7 @@ const Project = () => {
       const { name } = e.detail || {};
       if (name) {
         setHighlightedChart(name);
+        setChartSearchKeyword("");
         setTimeout(() => {
           const el = document.getElementById(`chart-${name}`);
           if (el) {
@@ -994,7 +1039,29 @@ const Project = () => {
     { name: "BrushableScatterplot", Component: BrushableScatterplot },
     { name: "BrushableScatterplotMatrix", Component: BrushableScatterplotMatrix },
     { name: "Pannablechart", Component: Pannablechart },
-    { name: "CandlestickChart", Component: CandlestickChart }
+    { name: "CandlestickChart", Component: CandlestickChart },
+    { name: "ZoomableAreaChart", Component: ZoomableAreaChart },
+    { name: "ZoomableBarChart", Component: ZoomableBarChart },
+    { name: "SeamlessZoomableMapTiles", Component: SeamlessZoomableMapTiles },
+    { name: "BollingerBands", Component: BollingerBands },
+    { name: "KernelDensityEstimation", Component: KernelDensityEstimation },
+    { name: "DensityContours", Component: DensityContours },
+    { name: "VolcanoContours", Component: VolcanoContours },
+    { name: "Contours", Component: Contours },
+    { name: "Hexbin", Component: Hexbin },
+    { name: "HexbinArea", Component: HexbinArea },
+    { name: "HexbinMap", Component: HexbinMap },
+    { name: "QQPlot", Component: QQPlot },
+    { name: "NormalQuantilePlot", Component: NormalQuantilePlot },
+    { name: "ParallelSets", Component: ParallelSets },
+    { name: "Treemap", Component: Treemap },
+    { name: "CascadedTreemap", Component: CascadedTreemap },
+    { name: "NestedTreemap", Component: NestedTreemap },
+    { name: "Movingaverage", Component: Movingaverage },
+    { name: "Boxplot", Component: Boxplot },
+    { name: "Histogram", Component: Histogram },
+    { name: "HierarchicalEdgeBounding", Component: HierarchicalEdgeBounding },
+    { name: "ConnectScatteredPlot", Component: ConnectScatteredplot }
   ];
 
   const getChartName = (originalName) => {
@@ -1113,7 +1180,29 @@ const Project = () => {
         "SequencesSunburst": "Clinical Patient Pathway Sequences",
         "BrushableScatterplot": "Interactive 2D Brushable Clinical Scatterplot",
         "BrushableScatterplotMatrix": "Pairwise Scatter Plot Matrix Cross-Brushing",
-        "Pannablechart": "Pannable Inpatient Admissions with Context Brush"
+        "Pannablechart": "Pannable Inpatient Admissions with Context Brush",
+        "ZoomableAreaChart": "Zoomable Multi-Horizon Area Dynamics",
+        "ZoomableBarChart": "Zoomable Granular Outpatient Bar Chart",
+        "SeamlessZoomableMapTiles": "Seamless Zoomable Multi-Resolution Map Tiles",
+        "BollingerBands": "Statistical Volatility Bollinger Bands",
+        "KernelDensityEstimation": "Bivariate Gaussian Kernel Density Estimation",
+        "DensityContours": "Patient Distribution Density Contours",
+        "VolcanoContours": "Genomic Significance Volcano Contours",
+        "Contours": "Multi-Threshold Isoline Contours",
+        "Hexbin": "Hexagonal Aggregation Hexbin Heatmap",
+        "HexbinArea": "Dynamic Area Sized Hexbin Distribution",
+        "HexbinMap": "Geospatial Epidemiological Hexbin Map",
+        "QQPlot": "Quantile-Quantile Normality Diagnostic Plot",
+        "NormalQuantilePlot": "Normal Quantile Standard Deviation Plot",
+        "ParallelSets": "Categorical Demographic Parallel Sets",
+        "Treemap": "Hierarchical Hospital Department Treemap",
+        "CascadedTreemap": "Cascaded Shaded Hierarchy Treemap",
+        "NestedTreemap": "Nested Container Structural Treemap",
+        "Movingaverage": "Moving Average Trend Oscillator",
+        "Boxplot": "Patient Vital Signs Box Plot",
+        "Histogram": "Patient Age Distribution Histogram",
+        "HierarchicalEdgeBounding": "Hierarchical Edge Bundling Network",
+        "ConnectScatteredPlot": "Patient Age vs Consultation Count"
       };
       return anmNames[originalName] || originalName;
     }
@@ -1512,12 +1601,8 @@ const Project = () => {
             : chartComponents;
           
           if (chartSearchKeyword.trim()) {
-            const q = chartSearchKeyword.toLowerCase().trim();
             filteredCharts = filteredCharts.filter(({ name }) => {
-              const clinical = getChartName(name).toLowerCase();
-              const technical = name.toLowerCase();
-              const category = (CHART_CONTEXTS[name] || "").toLowerCase();
-              return technical.includes(q) || clinical.includes(q) || category.includes(q);
+              return matchesChart(name, chartSearchKeyword);
             });
           }
 

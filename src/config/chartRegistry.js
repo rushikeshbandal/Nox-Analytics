@@ -126,7 +126,29 @@ export const CHART_CONTEXTS = {
   "BrushableScatterplot": "BILLING",
   "BrushableScatterplotMatrix": "CONSULTATIONS",
   "Pannablechart": "INVENTORY",
-  "CandlestickChart": "BILLING"
+  "CandlestickChart": "BILLING",
+  "ZoomableAreaChart": "CONSULTATIONS",
+  "ZoomableBarChart": "CONSULTATIONS",
+  "SeamlessZoomableMapTiles": "GEOGRAPHY",
+  "BollingerBands": "BILLING",
+  "KernelDensityEstimation": "CONSULTATIONS",
+  "DensityContours": "CONSULTATIONS",
+  "VolcanoContours": "CONSULTATIONS",
+  "Contours": "GEOGRAPHY",
+  "Hexbin": "CONSULTATIONS",
+  "HexbinArea": "CONSULTATIONS",
+  "HexbinMap": "GEOGRAPHY",
+  "QQPlot": "BILLING",
+  "NormalQuantilePlot": "BILLING",
+  "ParallelSets": "CONSULTATIONS",
+  "Treemap": "CONSULTATIONS",
+  "CascadedTreemap": "CONSULTATIONS",
+  "NestedTreemap": "WARDS",
+  "Movingaverage": "CONSULTATIONS",
+  "Boxplot": "CONSULTATIONS",
+  "Histogram": "CONSULTATIONS",
+  "HierarchicalEdgeBounding": "CONSULTATIONS",
+  "ConnectScatteredPlot": "CONSULTATIONS"
 };
 
 export const CLINICAL_TITLES = {
@@ -243,7 +265,40 @@ export const CLINICAL_TITLES = {
   "SequencesSunburst": "Clinical Patient Pathway Sequences",
   "BrushableScatterplot": "Interactive 2D Brushable Clinical Scatterplot",
   "BrushableScatterplotMatrix": "Pairwise Scatter Plot Matrix Cross-Brushing",
+  "ZoomableAreaChart": "Zoomable Multi-Horizon Area Dynamics",
+  "ZoomableBarChart": "Zoomable Granular Outpatient Bar Chart",
+  "SeamlessZoomableMapTiles": "Seamless Zoomable Multi-Resolution Map Tiles",
+  "BollingerBands": "Statistical Volatility Bollinger Bands",
+  "KernelDensityEstimation": "Bivariate Gaussian Kernel Density Estimation",
+  "DensityContours": "Patient Distribution Density Contours",
+  "VolcanoContours": "Genomic Significance Volcano Contours",
+  "Contours": "Multi-Threshold Isoline Contours",
+  "Hexbin": "Hexagonal Aggregation Hexbin Heatmap",
+  "HexbinArea": "Dynamic Area Sized Hexbin Distribution",
+  "HexbinMap": "Geospatial Epidemiological Hexbin Map",
+  "QQPlot": "Quantile-Quantile Normality Diagnostic Plot",
+  "NormalQuantilePlot": "Normal Quantile Standard Deviation Plot",
+  "ParallelSets": "Categorical Demographic Parallel Sets",
+  "Treemap": "Hierarchical Hospital Department Treemap",
+  "CascadedTreemap": "Cascaded Shaded Hierarchy Treemap",
+  "NestedTreemap": "Nested Container Structural Treemap",
+  "Pannablechart": "Pannable Inpatient Admissions with Context Brush",
+  "Movingaverage": "Moving Average Trend Oscillator",
+  "Boxplot": "Patient Vital Signs Box Plot",
+  "Histogram": "Patient Age Distribution Histogram",
+  "HierarchicalEdgeBounding": "Hierarchical Edge Bundling Network",
+  "ConnectScatteredPlot": "Patient Age vs Consultation Count"
 };
+
+// Strips punctuation, curly quotes, en/em dashes, and normalizes spacing for search
+export const normalizeText = (text = "") =>
+  String(text)
+    .toLowerCase()
+    .replace(/[’'"`]/g, "")
+    .replace(/[–—\-_/\\:]/g, " ")
+    .replace(/[&(),.+*?[\]#]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 // Converts PascalCase to words with spaces
 export const humanize = (name = "") =>
@@ -257,24 +312,93 @@ export const humanize = (name = "") =>
 // Assign an icon based on chart name characteristics
 const getChartIcon = (name) => {
   const n = name.toLowerCase();
-  if (n.includes("temporal") || n.includes("network") || n.includes("directed")) return "🕸️";
+  if (n.includes("tree") || n.includes("dendrogram") || n.includes("icicle") || n.includes("sunburst")) return "🌳";
+  if (n.includes("sankey") || n.includes("parallel") || n.includes("arc")) return "🔀";
+  if (n.includes("hexbin") || n.includes("contour") || n.includes("density")) return "⬡";
+  if (n.includes("temporal") || n.includes("network") || n.includes("directed") || n.includes("suits")) return "🕸️";
   if (n.includes("map") || n.includes("globe") || n.includes("tiles") || n.includes("spike")) return "🗺️";
   if (n.includes("bar")) return "📊";
   if (n.includes("pie") || n.includes("donut")) return "🥧";
-  if (n.includes("line") || n.includes("horizon") || n.includes("slope") || n.includes("trend")) return "📈";
+  if (n.includes("line") || n.includes("horizon") || n.includes("slope") || n.includes("trend") || n.includes("average")) return "📈";
   if (n.includes("calendar") || n.includes("heatmap")) return "📅";
   if (n.includes("treemap") || n.includes("packing") || n.includes("enclose")) return "🔲";
-  if (n.includes("scatter") || n.includes("bubble") || n.includes("beeswarm")) return "🫧";
+  if (n.includes("scatter") || n.includes("bubble") || n.includes("beeswarm") || n.includes("plot")) return "🫧";
   if (n.includes("chord")) return "🔄";
   if (n.includes("candlestick")) return "🕯️";
   return "📉";
 };
 
-const CHART_CUSTOM_KEYWORDS = {
-  "CandlestickChart": "stock exchange market live realtime btc crypto trading ticks share ohlc coinbase aapl graph"
+export const CHART_CUSTOM_KEYWORDS = {
+  "CandlestickChart": "stock exchange market live realtime btc crypto trading ticks share ohlc coinbase aapl graph",
+  "WalmartsGrowth": "walmart’s growth walmart's growth walmarts growth walmart retail expansion store store count wave timeline geographic",
+  "WealthHealthChart": "the wealth & health of nations wealth and health nation nations gapminder hans rosling life expectancy gdp income billing age profile",
+  "IcelandicPopulation": "icelandic population by age, 1841–2019 icelandic population by age 1841-2019 1841 2019 iceland population pyramid demographic age distribution",
+  "MobilePatentSuits": "mobile patent suits smartphone tech litigation patent lawsuits licensing directed graph curved arrows apple google samsung",
+  "StackedtoGroupedBarCharts": "stacked to grouped bars stacked-to-grouped bar chart transition toggle animation cohorts demographic",
+  "QQPlot": "q–q plot q-q plot qq plot quantile quantile normality diagnostic test distribution residuals probability",
+  "NormalQuantilePlot": "normal quantile plot normal probability plot q-q gaussian standard normal deviation z-score standard deviation",
+  "HexbinArea": "hexbin (area) hexbin area dynamic radius size area hexbin hexagon binning",
+  "Hexbin": "hexbin hexagonal binning heatmap hex density 2d 2-d aggregation",
+  "HexbinMap": "hexbin map geospatial hexbin hexagon cartogram geographical spatial map epidemiological",
+  "Contours": "contours contour plot isolines elevation marching squares topography multi-threshold",
+  "DensityContours": "density contours 2d density kde contour isolines patient distribution bivariate",
+  "VolcanoContours": "volcano contours volcano plot genomic significance log2 fold change pvalue p-value bioinformatics",
+  "KernelDensityEstimation": "kernel density estimation kde density plot gaussian probability distribution bandwidth smooth bivariate",
+  "ParallelSets": "parallel sets alluvial categorical flow sankey parallel categories multi-dimensional demographic",
+  "Treemap": "treemap static treemap squarify partition hierarchical hospital tiles department",
+  "CascadedTreemap": "cascaded treemap 2.5d shaded treemap cascaded tiles elevation hierarchy",
+  "NestedTreemap": "nested treemap nested containers hierarchical padding margins wards",
+  "CirclePacking": "circle packing static circular pack bubble hierarchy containment circles",
+  "IndentedTree": "indented tree file tree collapsible list outline directory folder hierarchy tree explorer",
+  "TidyTree": "tidy tree reingold tilford horizontal tree hierarchical graph disease pathways",
+  "RadialTidyTree": "radial tidy tree 360 circular tidy tree circular hierarchy organ systems",
+  "ClusterDendrogram": "cluster dendrogram equal depth dendrogram phylogenetic taxonomy clustering pathogen bacterial taxa",
+  "RadialDendrogram": "radial dendrogram circular dendrogram circular perimeter cluster equidistant pharma classes",
+  "Sunburst": "sunburst static sunburst multi ring partition radial partition concentric arcs service",
+  "Icicle": "icicle static icicle horizontal partition flame graph capacity bed partition",
+  "TangledTree": "tangled tree visualization tangled tree multi parent dag network causal cardiometabolic",
+  "PhylogeneticTree": "phylogenetic tree phylogram evolutionary lineage viral mutation tree substitutions sars cov 2",
+  "ForceDirectedTree": "force directed tree force-directed tree spring physics simulation hierarchy tree layout",
+  "ForceDirectedGraph": "force directed graph force-directed graph network physics layout nodes links consultations",
+  "DisjointForceDirectedGraph": "disjoint force directed graph disjoint force-directed graph disconnected components islands clusters campus regional",
+  "ArcDiagram": "arc diagram 1d linear graph semi circular arcs arc link network tumor board oncology",
+  "SankeyDiagram": "sankey diagram alluvial diagram volumetric flow multi stage ribbons patient workflow",
+  "HierarchicalEdgeBounding": "hierarchical edge bundling hierarchical edge bounding radial curved bundles circular network bilink",
+  "TemporalGraph": "temporal force-directed graph temporal force directed graph disease transmission network time timeline",
+  "ConnectScatteredplot": "connected scatterplot connect scattered plot patient age consultation count path trajectory",
+  "ConnectScatteredPlot": "connected scatterplot connect scattered plot patient age consultation count path trajectory",
+  "Movingaverage": "moving average rolling mean rolling average sma ema smoothing trend time series dates",
+  "Boxplot": "box plot boxplot box and whisker quartile median iqr diamonds vital signs",
+  "Histogram": "histogram frequency distribution bins binning unemployment age distribution",
+  "BollingerBands": "bollinger bands volatility standard deviation upper lower moving average envelope technical analysis",
+  "Pannablechart": "pannable chart pannable inpatient admissions context brush pan zoom focus overview",
+  "ZoomableAreaChart": "zoomable area chart area chart zoom pan time series multi horizon",
+  "ZoomableBarChart": "zoomable bar chart bar chart zoom pan granular outpatient",
+  "SeamlessZoomableMapTiles": "seamless zoomable map tiles slippy map raster vector tiles openstreetmap geography",
+  "AnimatedTreeMap": "animated treemap animated tree map patient categorization",
+  "BarChartRace": "bar chart race top diagnosed diseases race rank animation",
+  "StreamGraph": "streamgraph transitions streamgraph stream graph seasonal disease outbreaks flow",
+  "SmoothZoom": "smooth zooming smooth zoom pan consultation severity",
+  "ZoomToBoundingBox": "zoom to bounding box geographic bounding box fitting map region",
+  "OrthographicToEquirectangular": "orthographic to equirectangular map projection morphing planetary globe flat",
+  "WorldTour": "world tour global health outposts world flight rotating globe flight path",
+  "HierarchicalBarChart": "hierarchical bar chart drill down bar department capital allocation",
+  "ZoomableTreemap": "zoomable treemap clinic operational cost breakdown zoom treemap",
+  "ZoomableCirclePacking": "zoomable circle packing departmental hierarchy explorer zoom packing",
+  "CollapsibleTree": "collapsible tree interactive medical hierarchy tree expand collapse",
+  "ZoomableIcicle": "zoomable icicle hierarchical partition capacity icicle zoom icicle",
+  "ZoomableSunburst": "zoomable sunburst concentric department capital sunburst zoom sunburst",
+  "SortableBarChart": "sortable bar chart multi criteria sortable department performance sort",
+  "PieChartUpdate": "pie chart update dynamic morphing specialty distribution slice transition",
+  "Arctween": "arc tween concentric operational load arc gauges donut tween",
+  "VersorDragging": "versor dragging 3d orthographic versor healthcare globe mouse drag quaternion",
+  "IndexChart": "index chart medical inventory cost index stock baseline normalize percent change",
+  "SequencesSunburst": "sequences sunburst clinical patient pathway sequences breadcrumb funnel",
+  "BrushableScatterplot": "brushable scatterplot interactive 2d brushable clinical scatterplot rectangular brush select",
+  "BrushableScatterplotMatrix": "brushable scatterplot matrix pairwise scatter plot matrix cross brushing splom pairs"
 };
 
-// All available charts list
+// All available charts list with rich normalized keywords and word-prefix sets
 export const ALL_CHARTS = Object.keys(CHART_CONTEXTS).map(name => {
   const clinicalTitle = CLINICAL_TITLES[name] || humanize(name);
   const humanTitle = humanize(name);
@@ -282,16 +406,50 @@ export const ALL_CHARTS = Object.keys(CHART_CONTEXTS).map(name => {
   const icon = getChartIcon(name);
   const custom = CHART_CUSTOM_KEYWORDS[name] || "";
 
+  // Combine raw and normalized keywords into searchable string
+  const rawKeywords = `${name} ${clinicalTitle} ${humanTitle} ${category} ${custom}`;
+  const cleanKeywords = normalizeText(rawKeywords);
+  const searchKeywords = `${rawKeywords.toLowerCase()} ${cleanKeywords}`;
+  
+  // Extract distinct clean words
+  const words = Array.from(new Set(cleanKeywords.split(/\s+/).filter(Boolean)));
+
   return {
     name,
     title: clinicalTitle,
     humanName: humanTitle,
     category,
     icon,
-    // Search tokens for fast matching
-    searchKeywords: `${name} ${clinicalTitle} ${humanTitle} ${category} ${custom}`.toLowerCase()
+    searchKeywords,
+    words
   };
 });
+
+/**
+ * Checks if a chart matches a user query string.
+ * Supports token matching, word-prefixes, normalized punctuation.
+ */
+export const matchesChart = (chartOrName, query) => {
+  if (!query || typeof query !== "string") return true;
+  const qClean = normalizeText(query);
+  if (!qClean) return true;
+
+  const targetName = typeof chartOrName === "string" ? chartOrName : chartOrName?.name;
+  if (!targetName) return false;
+
+  const chart = ALL_CHARTS.find(c => c.name.toLowerCase() === targetName.toLowerCase());
+  if (!chart) return false;
+
+  const queryTokens = qClean.split(/\s+/).filter(Boolean);
+
+  // Every word in user search query must match
+  return queryTokens.every(token => {
+    if (token.length <= 2) {
+      return chart.words.some(w => w.startsWith(token));
+    }
+    return chart.words.some(w => w.startsWith(token)) || chart.searchKeywords.includes(token);
+  });
+};
 
 /**
  * Searches all charts by any keyword (e.g. "temporal", "donut", "bar", "disease", "billing")
@@ -299,24 +457,60 @@ export const ALL_CHARTS = Object.keys(CHART_CONTEXTS).map(name => {
  */
 export const searchCharts = (query, limit = 12) => {
   if (!query || typeof query !== "string") return [];
-  const q = query.trim().toLowerCase();
-  if (!q) return [];
+  const qClean = normalizeText(query);
+  if (!qClean) return [];
 
-  const tokens = q.split(/\s+/);
+  const tokens = qClean.split(/\s+/).filter(Boolean);
 
   const matched = ALL_CHARTS.filter(chart => {
-    // Every search token must match somewhere in the keywords
-    return tokens.every(token => chart.searchKeywords.includes(token));
+    return tokens.every(token => {
+      if (token.length <= 2) {
+        return chart.words.some(w => w.startsWith(token));
+      }
+      return chart.words.some(w => w.startsWith(token)) || chart.searchKeywords.includes(token);
+    });
   });
 
-  // Rank exact prefix matches higher
+  // Rank matches: exact match > custom keywords direct match > prefix match > alphabetical
   matched.sort((a, b) => {
-    const aStartsWith = a.name.toLowerCase().startsWith(q) || a.title.toLowerCase().startsWith(q);
-    const bStartsWith = b.name.toLowerCase().startsWith(q) || b.title.toLowerCase().startsWith(q);
-    if (aStartsWith && !bStartsWith) return -1;
-    if (!aStartsWith && bStartsWith) return 1;
+    const aCleanName = normalizeText(a.name);
+    const bCleanName = normalizeText(b.name);
+    const aCleanTitle = normalizeText(a.title);
+    const bCleanTitle = normalizeText(b.title);
+    const aCleanHuman = normalizeText(a.humanName);
+    const bCleanHuman = normalizeText(b.humanName);
+
+    const aExact = aCleanName === qClean || aCleanHuman === qClean || aCleanTitle === qClean;
+    const bExact = bCleanName === qClean || bCleanHuman === qClean || bCleanTitle === qClean;
+    if (aExact && !bExact) return -1;
+    if (!aExact && bExact) return 1;
+
+    // Direct match in custom keywords (e.g. "q–q plot" or "walmart's growth")
+    const aCustom = normalizeText(CHART_CUSTOM_KEYWORDS[a.name] || "");
+    const bCustom = normalizeText(CHART_CUSTOM_KEYWORDS[b.name] || "");
+    const aCustomMatch = aCustom.includes(qClean);
+    const bCustomMatch = bCustom.includes(qClean);
+    if (aCustomMatch && !bCustomMatch) return -1;
+    if (!aCustomMatch && bCustomMatch) return 1;
+
+    const aPrefix = aCleanName.startsWith(qClean) || aCleanHuman.startsWith(qClean) || aCleanTitle.startsWith(qClean);
+    const bPrefix = bCleanName.startsWith(qClean) || bCleanHuman.startsWith(qClean) || bCleanTitle.startsWith(qClean);
+    if (aPrefix && !bPrefix) return -1;
+    if (!aPrefix && bPrefix) return 1;
+
     return a.title.localeCompare(b.title);
   });
 
-  return matched.slice(0, limit);
+  // De-duplicate multiple alias entries
+  const seen = new Set();
+  const deduped = [];
+  for (const c of matched) {
+    const key = c.name.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      deduped.push(c);
+    }
+  }
+
+  return deduped.slice(0, limit);
 };
